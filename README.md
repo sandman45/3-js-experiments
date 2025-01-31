@@ -12,7 +12,7 @@ build: "tsc",
 start: "npm run build && npm run dev"
 ```
 
-
+```
 controls 
 w: move forward
 s: move backward
@@ -21,3 +21,4 @@ d: move right
 q: move up
 e: move down
 space: shoot
+```
