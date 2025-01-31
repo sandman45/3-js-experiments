@@ -26,7 +26,9 @@ export class Game {
         this.camera.position.z = 20;
         this.camera.lookAt(this.ship.mesh.position);
 
+        // Add keyboard event listeners
         window.addEventListener('keydown', (e) => this.handleKeyDown(e));
+        window.addEventListener('keyup', (e) => this.handleKeyUp(e));
     }
 
     private createAsteroids(count: number): void {
@@ -38,11 +40,18 @@ export class Game {
     }
 
     private handleKeyDown(event: KeyboardEvent): void {
+        // this.ship.setMovement(event.key.toLowerCase(), true);
+
+        // Shoot projectiles when Space is pressed
         if (event.code === 'Space') {
             const projectile = this.ship.shoot();
             this.projectiles.push(projectile);
             this.scene.add(projectile.mesh);
         }
+    }
+
+    private handleKeyUp(event: KeyboardEvent): void {
+        // this.ship.setMovement(event.key.toLowerCase(), false);
     }
 
     public start(): void {

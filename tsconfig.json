@@ -7,7 +7,12 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist", // Output directory for compiled files
-    "rootDir": "./src"  // Source directory for TypeScript files
+    "rootDir": "./src",
+    "moduleResolution": "node",
+    "removeComments": true,
+    "emitDecoratorMetadata": false,
+    "experimentalDecorators": false,
+    "sourceMap": false
   },
-  "include": ["/src/**/*"] // Include all files in the src directory
+  "include": ["src/**/*"]  // Removed the leading slash
 }
