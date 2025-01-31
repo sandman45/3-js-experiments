@@ -1,6 +1,23 @@
 # 3-js-experiments
 
+Created most of this project using DeepSeek AI. 
 
-`npx tsc` compiles TypeScript to JavaScript
+Had to manually fix a few things. 
 
-`npx vite` runs the project
+Scripts in package.json
+
+```
+dev: "vite",
+build: "tsc",
+start: "npm run build && npm run dev"
+```
+
+
+controls 
+w: move forward
+s: move backward
+a: move left
+d: move right
+q: move up
+e: move down
+space: shoot
