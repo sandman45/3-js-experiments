@@ -28,6 +28,7 @@ export class Ship {
     }
 
     public setMovement(key: string, isMoving: boolean): void {
+        console.log(`key: ${key}`);
         switch (key) {
             case 'w': this.moveForward = isMoving; break;
             case 's': this.moveBackward = isMoving; break;

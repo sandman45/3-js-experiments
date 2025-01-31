@@ -21,7 +21,7 @@ export class Game {
         this.ship = new Ship();
         this.scene.add(this.ship.mesh);
 
-        this.createAsteroids(5);
+        this.createAsteroids(4);
 
         this.camera.position.z = 20;
         this.camera.lookAt(this.ship.mesh.position);
@@ -40,7 +40,7 @@ export class Game {
     }
 
     private handleKeyDown(event: KeyboardEvent): void {
-        // this.ship.setMovement(event.key.toLowerCase(), true);
+        this.ship.setMovement(event.key.toLowerCase(), true);
 
         // Shoot projectiles when Space is pressed
         if (event.code === 'Space') {
@@ -51,7 +51,7 @@ export class Game {
     }
 
     private handleKeyUp(event: KeyboardEvent): void {
-        // this.ship.setMovement(event.key.toLowerCase(), false);
+        this.ship.setMovement(event.key.toLowerCase(), false);
     }
 
     public start(): void {
