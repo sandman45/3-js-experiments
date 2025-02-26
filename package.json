@@ -6,6 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "vite",
+    "clean":"rimraf dist",
+    "copy-assets": "npx copyfiles --all --up 1 'src/assets/**/*' dist/assets",
     "build": "tsc",
     "start": "npm run build && npm run dev"
   },
@@ -17,7 +19,9 @@
   },
   "devDependencies": {
     "@types/three": "^0.172.0",
+    "copyfiles": "^2.4.1",
     "http-server": "^14.1.1",
+    "rimraf": "^6.0.1",
     "typescript": "^5.7.3",
     "vite": "^6.0.11"
   }
