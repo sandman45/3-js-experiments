@@ -4,6 +4,7 @@ import { EnemyShip } from './EnemyShip';
 import { Asteroid } from './Asteroid';
 import { Projectile } from './Projectile';
 import { Lighting } from './Lighting';
+import { SkyBox } from './SkyBox';
 
 export class Game {
     private scene: THREE.Scene;
@@ -15,6 +16,7 @@ export class Game {
     private asteroids: Asteroid[] = [];
     private enemyShips: EnemyShip[] = [];
     private projectiles: Projectile[] = [];
+    private skybox: SkyBox;
 
     constructor() {
         this.scene = new THREE.Scene();
@@ -26,8 +28,8 @@ export class Game {
 
 
         document.body.appendChild(this.renderer.domElement);
-
-        
+        this.skybox = new SkyBox();
+        this.scene.add(this.skybox.mesh);
         this.scene.background = new THREE.Color(0xada2a2); // Hex color code
 
         this.ship = new Ship();
@@ -46,7 +48,7 @@ export class Game {
 
         this.goal = new THREE.Object3D();
         this.ship.mesh.add(this.goal);
-        this.goal.position.set(0, 4, -10);
+        this.goal.position.set(0, 1, -4);
         this.setCameraPositionRelativeToMeshAndFollow();
     }
 

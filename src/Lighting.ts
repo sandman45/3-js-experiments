@@ -10,7 +10,7 @@ export class Lighting {
         this.spotLight.castShadow = true;
         this.spotLight.shadow.mapSize.width = 1024;
         this.spotLight.shadow.mapSize.height = 1024;
-        this.spotLight.position.set(-10, 40, 0);
+        this.spotLight.position.set(0, 15, 0);
 
 
         this.ambientLight = new AmbientLight( 0x404040 );
