@@ -16,7 +16,12 @@ export class Game {
     private asteroids: Asteroid[] = [];
     private enemyShips: EnemyShip[] = [];
     private projectiles: Projectile[] = [];
+    private keys: { [key: string]: boolean } = {}; // Track pressed keys
     private skybox: SkyBox;
+    private mouseX: number = 0;
+    private mouseY: number = 0;
+
+    private arrowHelper: THREE.ArrowHelper;
 
     constructor() {
         this.scene = new THREE.Scene();
@@ -25,7 +30,6 @@ export class Game {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
 
         this.buildCamera({width: window.innerWidth, height: innerHeight});
-
 
         document.body.appendChild(this.renderer.domElement);
         this.skybox = new SkyBox();
@@ -46,10 +50,21 @@ export class Game {
         window.addEventListener('keydown', (e) => this.handleKeyDown(e));
         window.addEventListener('keyup', (e) => this.handleKeyUp(e));
 
+        // Add mouse movement listener
+        window.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+
         this.goal = new THREE.Object3D();
         this.ship.mesh.add(this.goal);
         this.goal.position.set(0, 1, -4);
         this.setCameraPositionRelativeToMeshAndFollow();
+
+        // Add an arrow helper to visualize the forward vector
+        const direction = new THREE.Vector3(1, 0, 0);
+        const origin = new THREE.Vector3(0, 0, 0);
+        const length = 1.5;
+        const hex = 0xff0000; // Red color
+        this.arrowHelper = new THREE.ArrowHelper(direction, origin, length, hex);
+        this.scene.add(this.arrowHelper);
     }
 
     private buildCamera({ width, height }: { width: number; height: number }) {
@@ -69,6 +84,8 @@ export class Game {
         temp.setFromMatrixPosition(this.goal.matrixWorld);
         this.camera.position.lerp(temp, .2);
         this.camera.lookAt( this.ship.mesh.position );
+        this.lighting.spotLight.position.set(this.ship.mesh.position.x, this.ship.mesh.position.y, this.ship.mesh.position.z);
+        this.lighting.ambientLight.position.set(this.ship.mesh.position.x, this.ship.mesh.position.y, this.ship.mesh.position.z);
     }
 
     private createAsteroids(count: number): void {
@@ -88,31 +105,64 @@ export class Game {
     }
 
     private handleKeyDown(event: KeyboardEvent): void {
-        this.ship.setMovement(event.key.toLowerCase(), true);
-            
-        // Shoot projectiles when Space is pressed
-        if (event.code === 'Space') {
+        this.keys[event.key.toLowerCase()] = true;
+    }
+
+    private handleKeyUp(event: KeyboardEvent): void {
+        this.keys[event.key.toLowerCase()] = false;
+    }
+
+    private handleMouseMove(event: MouseEvent): void {
+        // Calculate mouse position relative to the center of the screen
+        this.mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+        this.mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+    }
+
+    private handleInput(): void {
+        // Throttle controls
+        if (this.keys['w']) this.ship.increaseThrottle();
+        if (this.keys['s']) this.ship.decreaseThrottle();
+
+        // Roll controls
+        if (this.keys['q']) this.ship.roll(-1); // Roll left
+        if (this.keys['e']) this.ship.roll(1); // Roll right
+
+        // Strafe controls
+        if (this.keys['a']) this.ship.strafe(-1, 0); // Strafe left
+        if (this.keys['d']) this.ship.strafe(1, 0); // Strafe right
+        if (this.keys['r']) this.ship.strafe(0, 1); // Strafe up
+        if (this.keys['f']) this.ship.strafe(0, -1); // Strafe down
+
+        // Shoot projectiles
+        if (this.keys[' ']) {
             const projectile = this.ship.shoot();
             this.projectiles.push(projectile);
             this.scene.add(projectile.mesh);
         }
-        if (event.code === 'NumpadAdd' || event.code === 'Equal'){
-            this.goal.position.y++;
-        }
-        if (event.code === 'NumpadSubtract' || event.code === 'Minus'){
-            this.goal.position.y--;
-        }
-    }
 
-    private handleKeyUp(event: KeyboardEvent): void {
-        this.ship.setMovement(event.key.toLowerCase(), false);
+        // Pitch and yaw based on mouse movement
+        this.ship.pitch(-this.mouseY); // Pitch up/down
+        this.ship.yaw(this.mouseX); // Yaw left/right
     }
 
     public start(): void {
         const animate = () => {
             requestAnimationFrame(animate);
 
+            // // Update ship rotation based on mouse movement
+            // this.ship.rotateShip(this.mouseX, this.mouseY);
+
+            // Handle input
+            this.handleInput();
+
             this.ship.update();
+
+            // Update the arrow helper to match the ship's forward vector
+            const forwardVector = new THREE.Vector3(0, 0, 1);
+            forwardVector.applyQuaternion(this.ship.mesh.quaternion);
+            this.arrowHelper.setDirection(forwardVector);
+            this.arrowHelper.position.copy(this.ship.mesh.position);
+
             this.asteroids.forEach(asteroid => asteroid.update());
             this.enemyShips.forEach(enemyShip => enemyShip.update());
             this.projectiles.forEach(projectile => projectile.update());
