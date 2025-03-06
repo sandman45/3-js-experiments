@@ -2,14 +2,16 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { Projectile } from './Projectile';
 
+
 export class Ship {
     public mesh: THREE.Group;
     private speed: number = 0.1;
     private throttle: number = 0; // Throttle level (0 to 1)
-    private maxThrottle: number = 2; // Maximum throttle level
-    private throttleIncrement: number = 0.01; // How much throttle increases/decreases per frame
+    private maxThrottle: number = 1; // Maximum throttle level
+    private throttleIncrement: number = 0.05; // How much throttle increases/decreases per frame
     private rotationSpeed: number = 0.02; // Speed of rotation based on mouse movement
     private strafeSpeed: number = 0.05; // Speed of strafing (side-to-side and up-down movement)
+
 
     constructor() {
         this.mesh = new THREE.Group();
@@ -34,13 +36,6 @@ export class Ship {
         );
     }
 
-    public update(): void {
-        // Move the ship forward based on throttle
-        const forwardVector = new THREE.Vector3(0, 0, 1); // Forward direction in local space
-        forwardVector.applyQuaternion(this.mesh.quaternion); // Transform to world space
-        this.mesh.position.add(forwardVector.multiplyScalar(this.throttle * this.speed));
-    }
-
     public setMovement(key: string, isMoving: boolean): void {
         console.log(`key: ${key}`);
     }
@@ -55,12 +50,12 @@ export class Ship {
 
     public pitch(amount: number): void {
         // Rotate the ship up or down (pitch)
-        this.mesh.rotation.x += amount * this.rotationSpeed;
+        this.mesh.rotation.x -= amount * this.rotationSpeed;
     }
 
     public yaw(amount: number): void {
         // Rotate the ship left or right (yaw)
-        this.mesh.rotation.y += amount * this.rotationSpeed;
+        this.mesh.rotation.y -= amount * this.rotationSpeed;
     }
 
     public roll(amount: number): void {
@@ -96,5 +91,13 @@ export class Ship {
        // Create a projectile with the ship's position and forward direction
        const projectile = new Projectile(this.mesh.position.clone(), forwardVector);
        return projectile;
+    }
+
+    public update(): void {
+
+        // Move the ship forward based on throttle
+        const forwardVector = new THREE.Vector3(0, 0, 1); // Forward direction in local space
+        forwardVector.applyQuaternion(this.mesh.quaternion); // Transform to world space
+        this.mesh.position.add(forwardVector.multiplyScalar(this.throttle * this.speed));
     }
 }

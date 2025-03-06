@@ -22,6 +22,7 @@ export class Game {
     private mouseY: number = 0;
 
     private arrowHelper: THREE.ArrowHelper;
+    private deadZone: number = 0.2; // Dead zone radius (20% of screen width/height)
 
     constructor() {
         this.scene = new THREE.Scene();
@@ -114,35 +115,43 @@ export class Game {
 
     private handleMouseMove(event: MouseEvent): void {
         // Calculate mouse position relative to the center of the screen
-        this.mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-        this.mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+        const mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+        const mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+
+        // Apply dead zone
+        this.mouseX = Math.abs(mouseX) > this.deadZone ? mouseX : 0;
+        this.mouseY = Math.abs(mouseY) > this.deadZone ? mouseY : 0;
     }
 
     private handleInput(): void {
         // Throttle controls
-        if (this.keys['w']) this.ship.increaseThrottle();
-        if (this.keys['s']) this.ship.decreaseThrottle();
+        if (this.keys['-']) this.ship.decreaseThrottle(); // Decrease throttle
+        if (this.keys['='] || this.keys['+']) this.ship.increaseThrottle(); // Increase throttle
 
-        // Roll controls
-        if (this.keys['q']) this.ship.roll(-1); // Roll left
-        if (this.keys['e']) this.ship.roll(1); // Roll right
 
-        // Strafe controls
-        if (this.keys['a']) this.ship.strafe(-1, 0); // Strafe left
-        if (this.keys['d']) this.ship.strafe(1, 0); // Strafe right
-        if (this.keys['r']) this.ship.strafe(0, 1); // Strafe up
-        if (this.keys['f']) this.ship.strafe(0, -1); // Strafe down
+       // Pitch controls
+       if (this.keys['w']) this.ship.pitch(-1); // Pitch up
+       if (this.keys['s']) this.ship.pitch(1); // Pitch down
 
+       // Yaw controls
+       if (this.keys['a']) this.ship.yaw(-1); // Yaw left
+       if (this.keys['d']) this.ship.yaw(1); // Yaw right
+
+       // Roll controls (optional, if you want to keep them)
+       if (this.keys['q']) this.ship.roll(-1); // Roll left
+       if (this.keys['e']) this.ship.roll(1); // Roll right
+
+       // Strafe controls (optional, if you want to keep them)
+       if (this.keys['r']) this.ship.strafe(0, 1); // Strafe up
+       if (this.keys['f']) this.ship.strafe(0, -1); // Strafe down
+       
+        // want to move this outside of func
         // Shoot projectiles
         if (this.keys[' ']) {
             const projectile = this.ship.shoot();
             this.projectiles.push(projectile);
             this.scene.add(projectile.mesh);
-        }
-
-        // Pitch and yaw based on mouse movement
-        this.ship.pitch(-this.mouseY); // Pitch up/down
-        this.ship.yaw(this.mouseX); // Yaw left/right
+        }      
     }
 
     public start(): void {
@@ -151,10 +160,11 @@ export class Game {
 
             // // Update ship rotation based on mouse movement
             // this.ship.rotateShip(this.mouseX, this.mouseY);
-
-            // Handle input
+            // Pitch and yaw based on mouse movement
+            // this.ship.pitch(-this.mouseY); // Pitch up/down
+            // this.ship.yaw(-this.mouseX); // Yaw left/right
+           
             this.handleInput();
-
             this.ship.update();
 
             // Update the arrow helper to match the ship's forward vector

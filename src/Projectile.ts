@@ -5,7 +5,7 @@ export class Projectile {
     private velocity: THREE.Vector3; // Velocity vector of the projectile
 
     constructor(position: THREE.Vector3, direction: THREE.Vector3) {
-        const geometry = new THREE.SphereGeometry(0.1, 8, 8);
+        const geometry = new THREE.SphereGeometry(0.1, 4, 4);
         const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
         this.mesh = new THREE.Mesh(geometry, material);
         this.mesh.position.copy(position);
