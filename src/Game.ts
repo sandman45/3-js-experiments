@@ -15,15 +15,9 @@ export class Game {
     private goal: THREE.Object3D;
     private asteroids: Asteroid[] = [];
     private enemyShips: EnemyShip[] = [];
-    private projectiles: Projectile[] = [];
-    private keys: { [key: string]: boolean } = {}; // Track pressed keys
     private skybox: SkyBox;
-    private mouseX: number = 0;
-    private mouseY: number = 0;
-
     private arrowHelper: THREE.ArrowHelper;
-    private deadZone: number = 0.2; // Dead zone radius (20% of screen width/height)
-
+   
     constructor() {
         this.scene = new THREE.Scene();
         // this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -46,13 +40,6 @@ export class Game {
 
         this.createAsteroids(4);
         this.createEnemyShips(8);
-
-        // Add keyboard event listeners
-        window.addEventListener('keydown', (e) => this.handleKeyDown(e));
-        window.addEventListener('keyup', (e) => this.handleKeyUp(e));
-
-        // Add mouse movement listener
-        window.addEventListener('mousemove', (e) => this.handleMouseMove(e));
 
         this.goal = new THREE.Object3D();
         this.ship.mesh.add(this.goal);
@@ -105,66 +92,10 @@ export class Game {
         }
     }
 
-    private handleKeyDown(event: KeyboardEvent): void {
-        this.keys[event.key.toLowerCase()] = true;
-    }
-
-    private handleKeyUp(event: KeyboardEvent): void {
-        this.keys[event.key.toLowerCase()] = false;
-    }
-
-    private handleMouseMove(event: MouseEvent): void {
-        // Calculate mouse position relative to the center of the screen
-        const mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-        const mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
-
-        // Apply dead zone
-        this.mouseX = Math.abs(mouseX) > this.deadZone ? mouseX : 0;
-        this.mouseY = Math.abs(mouseY) > this.deadZone ? mouseY : 0;
-    }
-
-    private handleInput(): void {
-        // Throttle controls
-        if (this.keys['-']) this.ship.decreaseThrottle(); // Decrease throttle
-        if (this.keys['='] || this.keys['+']) this.ship.increaseThrottle(); // Increase throttle
-
-
-       // Pitch controls
-       if (this.keys['w']) this.ship.pitch(-1); // Pitch up
-       if (this.keys['s']) this.ship.pitch(1); // Pitch down
-
-       // Yaw controls
-       if (this.keys['a']) this.ship.yaw(-1); // Yaw left
-       if (this.keys['d']) this.ship.yaw(1); // Yaw right
-
-       // Roll controls (optional, if you want to keep them)
-       if (this.keys['q']) this.ship.roll(-1); // Roll left
-       if (this.keys['e']) this.ship.roll(1); // Roll right
-
-       // Strafe controls (optional, if you want to keep them)
-       if (this.keys['r']) this.ship.strafe(0, 1); // Strafe up
-       if (this.keys['f']) this.ship.strafe(0, -1); // Strafe down
-       
-        // want to move this outside of func
-        // Shoot projectiles
-        if (this.keys[' ']) {
-            const projectile = this.ship.shoot();
-            this.projectiles.push(projectile);
-            this.scene.add(projectile.mesh);
-        }      
-    }
-
     public start(): void {
         const animate = () => {
             requestAnimationFrame(animate);
 
-            // // Update ship rotation based on mouse movement
-            // this.ship.rotateShip(this.mouseX, this.mouseY);
-            // Pitch and yaw based on mouse movement
-            // this.ship.pitch(-this.mouseY); // Pitch up/down
-            // this.ship.yaw(-this.mouseX); // Yaw left/right
-           
-            this.handleInput();
             this.ship.update();
 
             // Update the arrow helper to match the ship's forward vector
@@ -172,18 +103,27 @@ export class Game {
             forwardVector.applyQuaternion(this.ship.mesh.quaternion);
             this.arrowHelper.setDirection(forwardVector);
             this.arrowHelper.position.copy(this.ship.mesh.position);
-
+            
+            // update asteroids and enemy
             this.asteroids.forEach(asteroid => asteroid.update());
             this.enemyShips.forEach(enemyShip => enemyShip.update());
-            this.projectiles.forEach(projectile => projectile.update());
+
+            // Handle shooting
+            const projectile = this.ship.getControls().shoot();
+            if (projectile) {
+                this.scene.add(projectile.mesh);
+            }
+
+            // Update projectiles
+            const projectiles = this.ship.getControls().getProjectiles();
 
             // Check for collisions
-            this.projectiles.forEach((projectile, pIndex) => {
+            projectiles.forEach((projectile, pIndex) => {
                 this.asteroids.forEach((asteroid, aIndex) => {
                     if (projectile.mesh.position.distanceTo(asteroid.mesh.position) < 2) {
                         this.scene.remove(projectile.mesh);
                         this.scene.remove(asteroid.mesh);
-                        this.projectiles.splice(pIndex, 1);
+                        projectiles.splice(pIndex, 1);
                         this.asteroids.splice(aIndex, 1);
                     }
                 });
@@ -191,7 +131,7 @@ export class Game {
                     if (projectile.mesh.position.distanceTo(enemyShip.mesh.position) < 2) {
                         this.scene.remove(projectile.mesh);
                         this.scene.remove(enemyShip.mesh);
-                        this.projectiles.splice(pIndex, 1);
+                        projectiles.splice(pIndex, 1);
                         this.enemyShips.splice(aIndex, 1);
                     }
                 });
