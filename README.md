@@ -12,6 +12,10 @@ build: "tsc",
 start: "npm run build && npm run dev"
 ```
 
+Start Project
+`npm run start`
+
+
 ```
 controls 
 Mouse Movement: Pitch & Yaw
