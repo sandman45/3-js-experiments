@@ -14,11 +14,8 @@ start: "npm run build && npm run dev"
 
 ```
 controls 
-w: move forward
-s: move backward
-a: move left
-d: move right
-q: move up
-e: move down
-space: shoot
+Mouse Movement: Pitch & Yaw
+Q: Roll
+E: Roll
+Space: shoot
 ```
