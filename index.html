@@ -7,10 +7,21 @@
   <style>
     body { margin: 0; }
     canvas { display: block; }
+    #ui {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: white;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
-    <div>Yo!!!!!</div>
+    <div id="ui">
+      <div>Throttle: <span id="throttle">0%</span></div>
+      <div>Speed: <span id="speed">0</span></div>
+    </div>
 <script type="importmap">
     {
         "imports": {

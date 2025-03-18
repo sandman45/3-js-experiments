@@ -6,12 +6,12 @@ export class Ship {
     public mesh: THREE.Group;
     private controls: Controls;
    
-    constructor() {
+    constructor(camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer) {
         this.mesh = new THREE.Group();
         this.loadModel();
 
         // Initialize controls for this ship
-        this.controls = new Controls(this.mesh);
+        this.controls = new Controls(this.mesh, camera, renderer);
     }
 
     private loadModel(): void {
@@ -23,7 +23,7 @@ export class Ship {
                 this.mesh.add(gltf.scene); // Add the loaded model to the ship's mesh
                 this.mesh.scale.set(1, 1, 1); // Scale the model if needed
                 this.mesh.position.set(0, 1, 0);
-                this.mesh.rotation.set(0, 0, 0); // Set initial position (0,3.15,0)
+                this.mesh.rotation.set(0, 3.15, 0); // Set initial position (0,3.15,0)
             },
             undefined,
             (error) => {
@@ -36,9 +36,9 @@ export class Ship {
         return this.controls;
     }
 
-    public update(): void {
+    public update(delta: number): void {
 
         // Update controls (e.g., handle input and apply movement/rotation)
-        this.controls.update();
+        this.controls.update(delta);
     }
 }

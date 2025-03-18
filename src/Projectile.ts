@@ -10,7 +10,7 @@ export class Projectile {
         this.mesh = new THREE.Mesh(geometry, material);
         this.mesh.position.copy(position);
         // Set the projectile's velocity based on the direction it's fired
-        this.velocity = direction.clone().normalize().multiplyScalar(0.5); // Adjust speed as needed
+        this.velocity = direction.clone().normalize().multiplyScalar(1); // Adjust speed as needed
     }
 
     public update(): void {

@@ -17,6 +17,9 @@ export class Game {
     private enemyShips: EnemyShip[] = [];
     private skybox: SkyBox;
     private arrowHelper: THREE.ArrowHelper;
+    private clock: THREE.Clock; // Track time for delta calculation
+    private throttleElement: HTMLElement; // UI element for throttle
+    private speedElement: HTMLElement; // UI element for speed
    
     constructor() {
         this.scene = new THREE.Scene();
@@ -31,7 +34,7 @@ export class Game {
         this.scene.add(this.skybox.mesh);
         this.scene.background = new THREE.Color(0xada2a2); // Hex color code
 
-        this.ship = new Ship();
+        this.ship = new Ship(this.camera, this.renderer);
         this.scene.add(this.ship.mesh);
        
         this.lighting = new Lighting();
@@ -53,6 +56,13 @@ export class Game {
         const hex = 0xff0000; // Red color
         this.arrowHelper = new THREE.ArrowHelper(direction, origin, length, hex);
         this.scene.add(this.arrowHelper);
+
+         // Initialize the clock
+         this.clock = new THREE.Clock();
+
+         // Get UI elements
+        this.throttleElement = document.getElementById('throttle')!;
+        this.speedElement = document.getElementById('speed')!;
     }
 
     private buildCamera({ width, height }: { width: number; height: number }) {
@@ -92,11 +102,23 @@ export class Game {
         }
     }
 
+    private updateUI(): void {
+        // Update throttle display
+        const throttle = this.ship.getControls().getThrottle();
+        this.throttleElement.textContent = `${Math.round(throttle * 100)}%`;
+
+        // Update speed display
+        const rollSpeed = this.ship.getControls().getRollSpeed();
+        this.speedElement.textContent = `${rollSpeed}`;
+    }
+
+
     public start(): void {
         const animate = () => {
             requestAnimationFrame(animate);
-
-            this.ship.update();
+            // Calculate delta time
+            const delta = this.clock.getDelta();
+            this.ship.update(delta);
 
             // Update the arrow helper to match the ship's forward vector
             const forwardVector = new THREE.Vector3(0, 0, 1);
@@ -107,6 +129,9 @@ export class Game {
             // update asteroids and enemy
             this.asteroids.forEach(asteroid => asteroid.update());
             this.enemyShips.forEach(enemyShip => enemyShip.update());
+
+            // Update UI
+            this.updateUI();
 
             // Handle shooting
             const projectile = this.ship.getControls().shoot();
